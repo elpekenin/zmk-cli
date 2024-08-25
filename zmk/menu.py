@@ -2,7 +2,7 @@
 Terminal menus
 """
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager
 from typing import Any, Generic, TypeVar
 
@@ -70,7 +70,7 @@ class TerminalMenu(Generic[T], Highlighter):
         title: Any,
         items: Iterable[T],
         *,
-        default_index=0,
+        default_index: int = 0,
         filter_func: Callable[[T, str], bool] | None = None,
         console: Console | None = None,
         theme: Theme | None = None,
@@ -113,7 +113,7 @@ class TerminalMenu(Generic[T], Highlighter):
 
         self._apply_filter()
 
-    def show(self):
+    def show(self) -> T:
         """
         Displays the menu.
 
@@ -147,7 +147,7 @@ class TerminalMenu(Generic[T], Highlighter):
             self._erase_controls()
 
     @property
-    def has_filter(self):
+    def has_filter(self) -> bool:
         """Get whether a filter function is set"""
         return bool(self._filter_func)
 
@@ -168,7 +168,7 @@ class TerminalMenu(Generic[T], Highlighter):
             prev = end
 
     @contextmanager
-    def _context(self):
+    def _context(self) -> Generator[None, None, None]:
         old_highlighter = self.console.highlighter
         try:
             terminal.hide_cursor()
@@ -321,7 +321,7 @@ class TerminalMenu(Generic[T], Highlighter):
         self._clamp_focus_index()
         return False
 
-    def _handle_backspace(self):
+    def _handle_backspace(self) -> None:
         if self._cursor_index == 0:
             return
 
@@ -329,14 +329,14 @@ class TerminalMenu(Generic[T], Highlighter):
         self._cursor_index -= 1
         self._apply_filter()
 
-    def _handle_delete(self):
+    def _handle_delete(self) -> None:
         if self._cursor_index == len(self._filter_text):
             return
 
         self._filter_text = splice(self._filter_text, self._cursor_index, count=1)
         self._apply_filter()
 
-    def _handle_text(self, key: bytes):
+    def _handle_text(self, key: bytes) -> None:
         text = key.decode()
         self._filter_text = splice(
             self._filter_text, self._cursor_index, insert_text=text
@@ -345,7 +345,7 @@ class TerminalMenu(Generic[T], Highlighter):
         self._apply_filter()
 
     @property
-    def _max_items_per_page(self):
+    def _max_items_per_page(self) -> int:
         """Maximum number of items that can be displayed at once"""
         return (
             self.console.height
@@ -354,15 +354,15 @@ class TerminalMenu(Generic[T], Highlighter):
             - self._num_title_lines
         )
 
-    def _get_display_count(self):
+    def _get_display_count(self) -> int:
         """Number of items to display in the menu"""
         return min(len(self.items), self._max_items_per_page)
 
-    def _get_menu_height(self):
+    def _get_menu_height(self) -> int:
         """Total height of the menu, including"""
         return self._get_display_count() + self.CONTROL_LINES + self._num_title_lines
 
-    def _get_scroll_index(self):
+    def _get_scroll_index(self) -> int:
         """Calculate the scroll index according to the focus index and items list"""
         items_count = len(self._filter_items)
         display_count = self._get_display_count()
@@ -382,18 +382,18 @@ class TerminalMenu(Generic[T], Highlighter):
 
         return self._scroll_index
 
-    def _move_cursor_to_top(self):
+    def _move_cursor_to_top(self) -> None:
         """Move the cursor to the start of the menu"""
         terminal.set_cursor_pos(row=self._top_row)
 
-    def _move_cursor_to_filter(self):
+    def _move_cursor_to_filter(self) -> None:
         """Move the cursor to the filter text field"""
         row = self._top_row + self._num_title_lines - 1
         col = self._last_title_line_len + self._cursor_index
 
         terminal.set_cursor_pos(row, col)
 
-    def _erase_controls(self):
+    def _erase_controls(self) -> None:
         """Hide the controls text and reset the cursor to after the menu"""
         row = self.console.height - 1
 
@@ -407,11 +407,11 @@ def show_menu(
     title: str,
     items: Iterable[T],
     *,
-    default_index=0,
+    default_index: int = 0,
     filter_func: Callable[[T, str], bool] | None = None,
     console: Console | None = None,
     theme: Theme | None = None,
-):
+) -> T:
     """
     Displays an interactive menu.
 
@@ -447,19 +447,21 @@ class Detail(Generic[T]):
     detail: str
     _pad_len: int
 
-    def __init__(self, data: T, detail: str):
+    def __init__(self, data: T, detail: str) -> None:
         self.data = data
         self.detail = detail
         self._pad_len = self.MIN_PAD
 
-    def __rich__(self):
+    def __rich__(self) -> str:
         text = Text.assemble(str(self.data), " " * self._pad_len, (self.detail, "dim"))
         # Returning the Text object directly works, but it doesn't get highlighted.
         return text.markup
 
     # pylint: disable=protected-access
     @classmethod
-    def align(cls, items: Iterable["Detail[T]"], console: Console | None = None):
+    def align(
+        cls, items: Iterable["Detail[T]"], console: Console | None = None
+    ) -> list["Detail[T]"]:
         """Set the padding for each item in the list to align the detail strings."""
         items = list(items)
         console = console or rich.get_console()

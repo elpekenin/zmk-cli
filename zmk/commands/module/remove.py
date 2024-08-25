@@ -6,6 +6,7 @@ import os
 import shutil
 import stat
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Annotated, Any
 
@@ -27,7 +28,7 @@ def module_remove(
         str | None,
         typer.Argument(help="Name or URL of the module to remove.", show_default=False),
     ] = None,
-):
+) -> None:
     """Remove a Zephyr module from the build."""
     cfg = get_config(ctx)
     repo = cfg.get_repo()
@@ -59,16 +60,16 @@ def module_remove(
     rich.print(f'Removed module "{project.name}".')
 
 
-def _find_project(projects: list[Project], module: str):
+def _find_project(projects: list[Project], module: str) -> Project:
     try:
         return next(p for p in projects if module in (p.name, p.url))
     except StopIteration as exc:
         raise FatalError(f'No module with name or URL "{module}" found.') from exc
 
 
-def _delete_project_files(repo: Repo, project: Project):
+def _delete_project_files(repo: Repo, project: Project) -> None:
     # Workaround for shutil.rmtree() failing on Windows.
-    def remove_readonly(func, path, _):
+    def remove_readonly(func: Callable[..., Any], path: str, _: BaseException) -> None:
         os.chmod(path, stat.S_IWRITE)
         func(path)
 
@@ -91,7 +92,7 @@ def _delete_project_files(repo: Repo, project: Project):
             )
 
 
-def _prompt_project(projects: list[Project]):
+def _prompt_project(projects: list[Project]) -> Project:
     items = detail_list((ProjectWrapper(p), p.url) for p in projects)
 
     result = show_menu("Select the module to remove:", items, filter_func=_filter)

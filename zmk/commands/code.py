@@ -10,6 +10,7 @@ from collections.abc import Callable
 from configparser import NoOptionError
 from dataclasses import dataclass, field
 from enum import Flag, auto
+from pathlib import Path
 from typing import Annotated
 
 import rich
@@ -40,7 +41,7 @@ def code(
             "--build", "-b", help="Open the build matrix instead of a keymap."
         ),
     ] = False,
-):
+) -> None:
     """Open the repo or a .keymap or .conf file in a text editor."""
 
     cfg = get_config(ctx)
@@ -57,7 +58,7 @@ def code(
     subprocess.call(cmd, shell=True)
 
 
-def _get_file(repo: Repo, keyboard: str | None, open_conf: bool):
+def _get_file(repo: Repo, keyboard: str | None, open_conf: bool) -> Path:
     if not keyboard:
         return repo.path
 
@@ -65,7 +66,7 @@ def _get_file(repo: Repo, keyboard: str | None, open_conf: bool):
     return repo.config_path / f"{keyboard}{ext}"
 
 
-def _get_editor(cfg: Config, is_directory: bool):
+def _get_editor(cfg: Config, is_directory: bool) -> str:
     if is_directory:
         try:
             return cfg.get(Settings.CORE_EXPLORER)
@@ -107,10 +108,10 @@ class Editor:
     paths: list[str] = field(default_factory=list)
     "Extra paths to search for the executable if `test` is not set"
 
-    def __rich__(self):
+    def __rich__(self) -> str:
         return self.name
 
-    def get_command(self):
+    def get_command(self) -> str | None:
         """Get the command to execute the tool, or None if it is not installed"""
         if self.test and self.test():
             return self.cmd
@@ -125,7 +126,7 @@ class Editor:
         return None
 
 
-def _mac():
+def _mac() -> bool:
     return platform.system() == "Darwin"
 
 
@@ -157,7 +158,7 @@ _EDITORS: list[Editor] = [
 ]
 
 
-def _select_editor(cfg: Config):
+def _select_editor(cfg: Config) -> None:
     available = [e for e in _EDITORS if e.get_command()]
     file_editors = [e for e in available if e.support & Support.FILE]
     dir_editors = [e for e in available if e.support & Support.DIR]
@@ -202,5 +203,5 @@ def _select_editor(cfg: Config):
     rich.print()
 
 
-def _filter(editor: Editor, text: str):
+def _filter(editor: Editor, text: str) -> bool:
     return text.casefold() in editor.name.casefold()

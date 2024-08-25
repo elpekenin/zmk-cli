@@ -9,6 +9,7 @@ import rich
 import typer
 from rich.console import Console
 from rich.prompt import InvalidResponse, Prompt, PromptBase
+from typing_extensions import Self
 from west.manifest import ImportFlag, Manifest
 
 from ...config import get_config
@@ -81,10 +82,11 @@ def module_add(
     data["manifest"]["projects"].append(project)
 
     yaml.dump(data, repo.project_manifest_path)
+    assert name is not None
     repo.run_west("update", name)
 
 
-def _get_name_from_url(repo_url: str):
+def _get_name_from_url(repo_url: str) -> str:
     return repo_url.split("/")[-1].removesuffix(".git")
 
 
@@ -99,8 +101,8 @@ class NamePrompt(PromptBase[str]):
 
     @classmethod
     def ask(  # pyright: ignore[reportIncompatibleMethodOverride]
-        cls, prompt: Manifest, *, console: Console | None = None
-    ):
+        cls: type[Self], prompt: Manifest, *, console: Console | None = None
+    ) -> str:
         subprompt = cls(prompt, console=console)
         return subprompt()
 

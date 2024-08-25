@@ -15,7 +15,15 @@ from ...backports import StrEnum
 from ...build import BuildItem, BuildMatrix
 from ...config import get_config
 from ...exceptions import FatalError
-from ...hardware import Board, Hardware, Shield, get_hardware, is_compatible
+from ...hardware import (
+    Board,
+    Hardware,
+    Interconnect,
+    Keyboard,
+    Shield,
+    get_hardware,
+    is_compatible,
+)
 from ...util import spinner
 
 # TODO: allow output as unformatted list
@@ -136,6 +144,8 @@ def keyboard_list(
 
     cfg = get_config(ctx)
     repo = cfg.get_repo()
+
+    item: Board | Keyboard | Interconnect | None
 
     with spinner("Finding hardware..."):
         groups = get_hardware(repo)

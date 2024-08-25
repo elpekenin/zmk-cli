@@ -4,9 +4,9 @@ Backports from Python > 3.10.
 
 # pyright: reportMissingImports = false
 
-try:
-    from enum import StrEnum
-except ImportError:
-    from backports.strenum import StrEnum
+# NOTE(elpekenin): aliased import prevents "unused import" error
 
-__all__ = ["StrEnum"]
+try:
+    from enum import StrEnum as StrEnum
+except ImportError:
+    from backports.strenum import StrEnum as StrEnum

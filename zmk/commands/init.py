@@ -25,7 +25,7 @@ TEMPLATE_URL = (
 TEXT_WIDTH = 80
 
 
-def init(ctx: typer.Context):
+def init(ctx: typer.Context) -> None:
     """Create a new ZMK config repo or clone an existing one."""
 
     console = rich.get_console()
@@ -61,7 +61,7 @@ def init(ctx: typer.Context):
     # TODO: add some help for how to commit and push changes
 
 
-def _git_download_url():
+def _git_download_url() -> str:
     match platform.system():
         case "Linux":
             return "https://git-scm.com/download/linux"
@@ -73,7 +73,7 @@ def _git_download_url():
             return "https://git-scm.com/downloads"
 
 
-def _check_dependencies():
+def _check_dependencies() -> None:
     if not shutil.which("git"):
         raise FatalError(
             f"Could not find Git. Please install it from {_git_download_url()} "
@@ -81,7 +81,7 @@ def _check_dependencies():
         )
 
 
-def _check_for_existing_repo(cfg: Config):
+def _check_for_existing_repo(cfg: Config) -> None:
     if find_containing_repo():
         rich.print("The current directory is already a ZMK config repo.")
         raise typer.Exit()
@@ -92,7 +92,7 @@ def _check_for_existing_repo(cfg: Config):
             raise typer.Exit()
 
 
-def _get_repo_url():
+def _get_repo_url() -> str:
     rich.print(
         "If you already have a ZMK config repo, enter its URL here. "
         "Otherwise, leave this blank to create a new repo."
@@ -121,13 +121,13 @@ def _get_repo_url():
     return url
 
 
-def _get_directory_name(url: str):
+def _get_directory_name(url: str) -> str:
     default = urlparse(url).path.split("/")[-1]
 
     return Prompt.ask("Enter a directory name", default=default)
 
 
-def _clone_repo(url: str, name: str):
+def _clone_repo(url: str, name: str) -> None:
     try:
         subprocess.check_call(["git", "clone", url, name])
     except subprocess.CalledProcessError as ex:

@@ -14,7 +14,7 @@ from ..config import get_config
 from ..exceptions import FatalError, FatalHomeMissing, FatalHomeNotSet
 
 
-def cd(ctx: typer.Context):
+def cd(ctx: typer.Context) -> None:
     """Go to the ZMK config repo."""
     if not sys.stdout.isatty():
         raise FatalError(
@@ -48,7 +48,7 @@ def cd(ctx: typer.Context):
         os.execl(shell, shell)
 
 
-def _default_shell():
+def _default_shell() -> str:
     if os.name == "posix":
         return os.environ["SHELL"]
     if os.name == "nt":

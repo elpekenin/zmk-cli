@@ -3,9 +3,11 @@ User configuration.
 """
 
 from collections import defaultdict
+from collections.abc import Generator
 from configparser import ConfigParser
 from itertools import chain
 from pathlib import Path
+from typing import Any
 
 import typer
 
@@ -29,7 +31,7 @@ class Config:
     path: Path
     force_home: bool
 
-    def __init__(self, path: Path | None, force_home=False) -> None:
+    def __init__(self, path: Path | None, force_home: bool = False) -> None:
         self.path = path or _default_config_path()
         self.force_home = force_home
 
@@ -37,34 +39,34 @@ class Config:
         self._parser = ConfigParser()
         self._parser.read(self.path, encoding="utf-8")
 
-    def write(self):
+    def write(self) -> None:
         """Write back to the same file used when calling read()"""
         self.path.parent.mkdir(parents=True, exist_ok=True)
 
         with self.path.open("w", encoding="utf-8") as fp:
             self._parser.write(fp)
 
-    def get(self, name: str, **kwargs) -> str:
+    def get(self, name: str, **kwargs: Any) -> str:
         """Get a setting"""
         section, option = self._split_option(name)
         return self._parser.get(section, option, **kwargs)
 
-    def getboolean(self, name: str, **kwargs) -> bool:
+    def getboolean(self, name: str, **kwargs: Any) -> bool:
         """Get a setting as a boolean"""
         section, option = self._split_option(name)
         return self._parser.getboolean(section, option, **kwargs)
 
-    def set(self, name: str, value: str):
+    def set(self, name: str, value: str) -> None:
         """Set a setting"""
         section, option = self._split_option(name)
         self._parser.set(section, option, value)
 
-    def remove(self, name: str):
+    def remove(self, name: str) -> None:
         """Remove a setting"""
         section, option = self._split_option(name)
         self._parser.remove_option(section, option)
 
-    def items(self):
+    def items(self) -> Generator[tuple[str, str], None, None]:
         """Yields ('section.option', 'value') tuples for all settings"""
         sections = set(chain(self._overrides.keys(), self._parser.sections()))
 
@@ -74,7 +76,7 @@ class Config:
             for option, value in items:
                 yield f"{section}.{option}", value
 
-    def _split_option(self, name: str):
+    def _split_option(self, name: str) -> tuple[str, str]:
         section, _, option = name.partition(".")
 
         if not self._parser.has_section(section):
@@ -93,7 +95,7 @@ class Config:
         return Path(home) if home else None
 
     @home_path.setter
-    def home_path(self, value: Path):
+    def home_path(self, value: Path) -> None:
         self.set(Settings.USER_HOME, str(value.resolve()))
 
     def get_repo(self) -> Repo:
@@ -127,5 +129,5 @@ def get_config(ctx: typer.Context) -> Config:
     return cfg
 
 
-def _default_config_path():
+def _default_config_path() -> Path:
     return Path(typer.get_app_dir("zmk", roaming=False)) / "zmk.ini"

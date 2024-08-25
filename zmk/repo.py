@@ -172,7 +172,7 @@ class Repo(Module):
         self.ensure_west_ready()
         return self._run_west(*args, capture_output=capture_output)
 
-    def ensure_west_ready(self):
+    def ensure_west_ready(self) -> None:
         """
         Ensures the west application is correctly initialized.
         """
@@ -197,7 +197,7 @@ class Repo(Module):
     @overload
     def _run_west(self, *args: str, capture_output: bool) -> str | None: ...
 
-    def _run_west(self, *args: str, capture_output=False):
+    def _run_west(self, *args: str, capture_output: bool = False) -> str | None:
         if capture_output:
             with redirect_stdout(StringIO()) as output:
                 self.run_west(*args, capture_output=False)
@@ -207,7 +207,7 @@ class Repo(Module):
             west_main(args)
             return None
 
-    def _update_gitignore(self):
+    def _update_gitignore(self) -> None:
         gitignore = self.path / ".gitignore"
         ignore_line = _WEST_STAGING_PATH + "/"
 
@@ -219,7 +219,7 @@ class Repo(Module):
 
             f.write(f"\n{ignore_line}\n")
 
-    def _update_west_manifest(self):
+    def _update_west_manifest(self) -> None:
         symlink_dir = self.west_path / _CONFIG_DIR_NAME
         symlink_dir.mkdir(parents=True, exist_ok=True)
 
@@ -242,7 +242,7 @@ class Repo(Module):
             # Might not have permissions to symlink? Copy the file instead.
             shutil.copy(target, symlink)
 
-    def _init_west_app(self):
+    def _init_west_app(self) -> None:
         print("Initializing west application. This may take a while...")
         self._run_west("init", "-l", _CONFIG_DIR_NAME)
 
@@ -252,7 +252,7 @@ class Repo(Module):
         self._run_west("update")
 
 
-def _run_west(path: Path, args: list[str], capture_output=False):
+def _run_west(path: Path, args: list[str], capture_output: bool = False) -> str | None:
     if capture_output:
         with redirect_stdout(StringIO()) as output:
             _run_west(path, args, capture_output=False)

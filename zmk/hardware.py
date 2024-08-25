@@ -6,10 +6,11 @@ from collections.abc import Generator, Iterable
 from dataclasses import dataclass, field
 from functools import reduce
 from pathlib import Path
-from typing import Literal, Self, TypeAlias, TypeGuard
+from typing import Literal, TypeAlias, TypeGuard
 
 import dacite
 import dacite.data
+from typing_extensions import Self
 
 from .repo import Repo
 from .util import flatten
@@ -190,7 +191,7 @@ def is_compatible(
 
 def get_board_roots(repo: Repo) -> Iterable[Path]:
     """Get the paths that contain hardware definitions for a repo"""
-    roots = set()
+    roots: set[Path] = set()
 
     if root := repo.board_root:
         roots.add(root)
@@ -204,7 +205,9 @@ def get_board_roots(repo: Repo) -> Iterable[Path]:
 
 def get_hardware(repo: Repo) -> GroupedHardware:
     """Get lists of hardware descriptions, grouped by type, for a repo"""
-    hardware = flatten(_find_hardware(root) for root in get_board_roots(repo))
+    hardware: Iterable[Hardware] = flatten(
+        _find_hardware(root) for root in get_board_roots(repo)
+    )
 
     def func(groups: GroupedHardware, item: Hardware) -> GroupedHardware:
         if is_keyboard(item):

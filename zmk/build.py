@@ -5,9 +5,10 @@ Build matrix processing.
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Self, TypeVar, cast, overload
+from typing import Any, TypeVar, cast, overload
 
 import dacite
+from typing_extensions import Self
 
 from .repo import Repo
 from .yaml import YAML

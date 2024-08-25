@@ -11,6 +11,7 @@ Terminal utilities
 import os
 import sys
 from contextlib import contextmanager
+from typing import Generator
 
 
 def hide_cursor() -> None:
@@ -40,7 +41,7 @@ PAGE_UP = b"\x1b[5~"
 PAGE_DOWN = b"\x1b[6~"
 
 
-try:
+if os.name == "nt":
     import msvcrt
     from ctypes import byref, windll, wintypes
 
@@ -74,7 +75,7 @@ try:
 
         Special keys such as arrow keys return xterm or vt escape sequences.
         """
-        key = msvcrt.getch()
+        key: bytes = msvcrt.getch()
 
         if key == b"\x03":  # CTRL+C
             raise KeyboardInterrupt()
@@ -89,7 +90,7 @@ try:
         return key
 
     @contextmanager
-    def enable_vt_mode():
+    def enable_vt_mode() -> Generator[None, None, None]:
         """
         Context manager which enables virtual terminal processing.
         """
@@ -108,7 +109,7 @@ try:
             kernel32.SetConsoleMode(stdout_handle, old_stdout_mode)
 
     @contextmanager
-    def disable_echo():
+    def disable_echo() -> Generator[None, None, None]:
         """
         Context manager which disables console echo
         """
@@ -124,11 +125,11 @@ try:
         finally:
             kernel32.SetConsoleMode(stdin_handle, old_stdin_mode)
 
-except ImportError:
+else:
     import termios
 
     @contextmanager
-    def enable_vt_mode():
+    def enable_vt_mode() -> Generator[None, None, None]:
         """
         Context manager which enables virtual terminal processing.
         """
@@ -136,7 +137,7 @@ except ImportError:
         yield
 
     @contextmanager
-    def disable_echo():
+    def disable_echo() -> Generator[None, None, None]:
         """
         Context manager which disables console echo
         """

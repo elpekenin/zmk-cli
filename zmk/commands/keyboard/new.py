@@ -288,9 +288,9 @@ class IdPrompt(NamePromptBase):
         _validate_id(value)
 
     @classmethod
-    def ask(
+    def ask(  # pyright: ignore[reportIncompatibleMethodOverride]
         cls, prompt: str
-    ) -> str:  # pyright: ignore[reportIncompatibleMethodOverride]
+    ) -> str:
         result = super().ask(
             "Enter an ID for the keyboard", default=_get_default_id(prompt)
         )

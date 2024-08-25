@@ -15,7 +15,7 @@ console = Console(
 )
 
 
-def _path_callback(ctx: typer.Context, value: bool):
+def _path_callback(ctx: typer.Context, value: bool) -> None:
     if value:
         cfg = get_config(ctx)
         print(cfg.path)
@@ -48,7 +48,7 @@ def config(
             callback=_path_callback,
         ),
     ] = False,
-):
+) -> None:
     """Get and set ZMK CLI settings."""
 
     cfg = get_config(ctx)
@@ -63,21 +63,22 @@ def config(
         _get_setting(cfg, name)
 
 
-def _list_settings(cfg: Config):
+def _list_settings(cfg: Config) -> None:
     for name, value in sorted(cfg.items()):
         console.print(f"{name}={value}")
 
 
-def _unset_setting(cfg: Config, name: str):
+def _unset_setting(cfg: Config, name: str) -> None:
     cfg.remove(name)
     cfg.write()
 
 
-def _set_setting(cfg: Config, name: str, value: str):
+def _set_setting(cfg: Config, name: str, value: str) -> None:
     cfg.set(name, value)
     cfg.write()
 
 
-def _get_setting(cfg: Config, name: str):
+# NOTE(elpekenin): doesnt really get the value, but print it
+def _get_setting(cfg: Config, name: str) -> None:
     if value := cfg.get(name, fallback=None):
         console.print(value)

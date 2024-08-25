@@ -8,7 +8,7 @@ from ..config import get_config
 from ..repo import Repo
 
 
-def download(ctx: typer.Context):
+def download(ctx: typer.Context) -> None:
     """Open the web page to download firmware from GitHub."""
 
     cfg = get_config(ctx)
@@ -19,7 +19,7 @@ def download(ctx: typer.Context):
     typer.launch(actions_url)
 
 
-def _get_actions_url(repo: Repo):
+def _get_actions_url(repo: Repo) -> str:
     remote = repo.git("remote", capture_output=True).strip()
     remote_url = repo.git("remote", "get-url", remote, capture_output=True).strip()
 
