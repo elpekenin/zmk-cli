@@ -25,7 +25,7 @@ def _version_callback(version: bool):
 def main(
     ctx: typer.Context,
     config_file: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             envvar="ZMK_CLI_CONFIG", help="Path to the ZMK CLI configuration file."
         ),

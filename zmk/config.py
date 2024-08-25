@@ -30,7 +30,7 @@ class Config:
     path: Path
     force_home: bool
 
-    def __init__(self, path: Optional[Path], force_home=False) -> None:
+    def __init__(self, path: Path | None, force_home=False) -> None:
         self.path = path or _default_config_path()
         self.force_home = force_home
 
@@ -86,7 +86,7 @@ class Config:
     # Shortcuts for commonly-used settings:
 
     @property
-    def home_path(self) -> Optional[Path]:
+    def home_path(self) -> Path | None:
         """
         Path to ZMK config repo.
         """

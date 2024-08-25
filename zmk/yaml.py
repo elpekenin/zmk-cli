@@ -18,7 +18,7 @@ class YAML(ruamel.yaml.YAML):
     readable or seekable, a leading comment will be overwritten.
     """
 
-    def dump(self, data, stream: Optional[Path | IO] = None, *, transform=None):
+    def dump(self, data, stream: Path | IO | None = None, *, transform=None):
         if stream is None:
             raise TypeError("Dumping from a context manager is not supported.")
 

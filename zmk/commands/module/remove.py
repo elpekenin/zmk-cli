@@ -24,7 +24,7 @@ from ...yaml import YAML
 def module_remove(
     ctx: typer.Context,
     module: Annotated[
-        Optional[str],
+        str | None,
         typer.Argument(help="Name or URL of the module to remove.", show_default=False),
     ] = None,
 ):

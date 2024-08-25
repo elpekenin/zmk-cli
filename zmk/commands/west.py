@@ -29,7 +29,7 @@ def west(ctx: typer.Context):
 def update(
     ctx: typer.Context,
     modules: Annotated[
-        Optional[list[str]],
+        list[str] | None,
         typer.Argument(
             help="Names of modules to update. Updates all modules if omitted."
         ),

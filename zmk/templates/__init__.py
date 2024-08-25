@@ -7,13 +7,14 @@ Templates will be provided the following parameters:
     name: str -- The keyboard display name
     shortname: str -- A name abbreviated to <= 16 characters
     keyboard_type: str -- "board" or "shield"
-    arch: Optional[str] -- The board architecture, e.g "arm"
+    arch: Optional | str -- The board architecture, e.g "arm"
 
 """
 
 import re
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator, cast
+from typing import Any, cast
 
 from mako.lookup import TemplateLookup
 from mako.template import Template
