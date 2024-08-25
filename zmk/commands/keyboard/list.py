@@ -3,7 +3,7 @@
 """
 
 from collections.abc import Iterable
-from typing import Annotated, Optional
+from typing import Annotated
 
 import rich
 import typer
@@ -32,7 +32,7 @@ class ListType(StrEnum):
     INTERCONNECT = "interconnect"
 
 
-def _list_build_matrix(ctx: typer.Context, value: bool):
+def _list_build_matrix(ctx: typer.Context, value: bool) -> None:
     if not value:
         return
 
@@ -58,7 +58,7 @@ def _list_build_matrix(ctx: typer.Context, value: bool):
     if has_cmake_args:
         table.add_column("CMake Args")
 
-    def add_row(item: BuildItem):
+    def add_row(item: BuildItem) -> None:
         cols = [item.board, item.shield]
         if has_snippet:
             cols.append(item.snippet)
@@ -129,7 +129,7 @@ def keyboard_list(
             "--standalone", help="List only keyboards with onboard controllers."
         ),
     ] = False,
-):
+) -> None:
     """List supported keyboards or keyboards in the build matrix."""
 
     console = rich.get_console()
@@ -186,7 +186,7 @@ def keyboard_list(
         groups.keyboards = [kb for kb in groups.keyboards if isinstance(kb, Board)]
         list_type = ListType.KEYBOARD
 
-    def print_items(header: str, items: Iterable[Hardware]):
+    def print_items(header: str, items: Iterable[Hardware]) -> None:
         names = [item.id for item in items]
         if not names:
             return

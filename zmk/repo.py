@@ -160,10 +160,7 @@ class Repo(Module):
     @overload
     def run_west(self, *args: str, capture_output: Literal[True]) -> str: ...
 
-    @overload
-    def run_west(self, *args: str, capture_output: bool) -> str | None: ...
-
-    def run_west(self, *args: str, capture_output: bool = False):
+    def run_west(self, *args: str, capture_output: bool = False) -> str | None:
         """
         Run west in the west staging folder.
 

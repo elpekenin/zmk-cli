@@ -74,7 +74,7 @@ class TerminalMenu(Generic[T], Highlighter):
         filter_func: Callable[[T, str], bool] | None = None,
         console: Console | None = None,
         theme: Theme | None = None,
-    ):
+    ) -> None:
         """
         An interactive terminal menu.
 
@@ -151,7 +151,7 @@ class TerminalMenu(Generic[T], Highlighter):
         """Get whether a filter function is set"""
         return bool(self._filter_func)
 
-    def highlight(self, text: Text):
+    def highlight(self, text: Text) -> None:
         normfilter = self._filter_text.casefold().strip()
         if not normfilter:
             return
@@ -180,7 +180,7 @@ class TerminalMenu(Generic[T], Highlighter):
             terminal.show_cursor()
             self.console.highlighter = old_highlighter
 
-    def _apply_filter(self):
+    def _apply_filter(self) -> None:
         if self._filter_func:
             try:
                 old_focus = self._filter_items[self._focus_index]
@@ -201,7 +201,7 @@ class TerminalMenu(Generic[T], Highlighter):
 
         self._clamp_focus_index()
 
-    def _print_menu(self):
+    def _print_menu(self) -> None:
         self.console.print(
             f"[title]{self.title}[/title] [filter]{self._filter_text}[/filter]",
             justify="left",
@@ -248,7 +248,7 @@ class TerminalMenu(Generic[T], Highlighter):
             overflow="crop",
         )
 
-    def _print_item(self, item: T | str, focused: bool, show_more: bool):
+    def _print_item(self, item: T | str, focused: bool, show_more: bool) -> None:
         style = "ellipsis" if show_more else "focus" if focused else "unfocus"
 
         indent = "> " if focused else "  "
@@ -265,13 +265,13 @@ class TerminalMenu(Generic[T], Highlighter):
             overflow="ellipsis",
         )
 
-    def _clamp_focus_index(self):
+    def _clamp_focus_index(self) -> None:
         self._focus_index = min(max(0, self._focus_index), len(self._filter_items) - 1)
 
-    def _clamp_cursor_index(self):
+    def _clamp_cursor_index(self) -> None:
         self._cursor_index = min(max(0, self._cursor_index), len(self._filter_text))
 
-    def _handle_input(self):
+    def _handle_input(self) -> bool:
         """
         Process one key of input.
 

@@ -3,7 +3,7 @@
 """
 
 import subprocess
-from typing import Annotated, Optional
+from typing import Annotated
 
 import rich
 import typer
@@ -32,7 +32,7 @@ def module_add(
         str | None,
         typer.Option("--name", "-n", help="Name of the module.", show_default=False),
     ] = None,
-):
+) -> None:
     """Add a Zephyr module to the build."""
     cfg = get_config(ctx)
     repo = cfg.get_repo()
@@ -118,7 +118,7 @@ class NamePrompt(PromptBase[str]):
         return value
 
 
-def _get_default_branch(repo_url: str):
+def _get_default_branch(repo_url: str) -> str:
     with spinner("Finding default branch."):
         # TODO: if the URL is to github, use the github API to get the default branch.
         # For now, just assume that if a repo has a "main" branch, that is the default
@@ -142,15 +142,15 @@ def _get_default_branch(repo_url: str):
         return "master"
 
 
-def _has_project_with_name(manifest: Manifest, name: str):
+def _has_project_with_name(manifest: Manifest, name: str) -> bool:
     return any(p for p in manifest.projects[1:] if p.name == name)
 
 
-def _has_project_with_url(manifest: Manifest, url: str):
+def _has_project_with_url(manifest: Manifest, url: str) -> bool:
     return any(p for p in manifest.projects[1:] if p.url == url)
 
 
-def _error_if_existing_name(manifest: Manifest, name: str):
+def _error_if_existing_name(manifest: Manifest, name: str) -> None:
     if _has_project_with_name(manifest, name):
         raise FatalError(
             f'There is already a module with the name "{name}". '
@@ -158,6 +158,6 @@ def _error_if_existing_name(manifest: Manifest, name: str):
         )
 
 
-def _error_if_existing_url(manifest: Manifest, url: str):
+def _error_if_existing_url(manifest: Manifest, url: str) -> None:
     if _has_project_with_url(manifest, url):
         raise FatalError(f'There is already a module with the URL "{url}".')

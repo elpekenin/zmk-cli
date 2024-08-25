@@ -6,7 +6,6 @@ from collections import defaultdict
 from configparser import ConfigParser
 from itertools import chain
 from pathlib import Path
-from typing import Optional
 
 import typer
 

@@ -4,7 +4,8 @@
 
 import re
 from dataclasses import dataclass, field
-from typing import Annotated, Optional
+from types import EllipsisType
+from typing import Annotated
 
 import rich
 import typer
@@ -51,7 +52,7 @@ ID_PATTERN = re.compile(r"[a-z_]\w*")
 MAX_NAME_LENGTH = 16
 
 
-def _validate_id(value: str):
+def _validate_id(value: str) -> None:
     if not value:
         raise typer.BadParameter("ID must be at least one character long.")
 
@@ -62,13 +63,13 @@ def _validate_id(value: str):
         )
 
 
-def _validate_name(name: str):
+def _validate_name(name: str) -> None:
     name = name.strip()
     if not name:
         raise typer.BadParameter("Name must be at least one character long.")
 
 
-def _validate_short_name(name: str):
+def _validate_short_name(name: str) -> None:
     if not name:
         raise typer.BadParameter("Name must be at least one character long.")
 
@@ -76,19 +77,19 @@ def _validate_short_name(name: str):
         raise typer.BadParameter(f"Name must be <= {MAX_NAME_LENGTH} characters.")
 
 
-def _id_callback(value: str | None):
+def _id_callback(value: str | None) -> str | None:
     if value is not None:
         _validate_id(value)
     return value
 
 
-def _name_callback(name: str | None):
+def _name_callback(name: str | None) -> str | None:
     if name is not None:
         _validate_name(name)
     return name
 
 
-def _short_name_callback(name: str | None):
+def _short_name_callback(name: str | None) -> str | None:
     if name is not None:
         _validate_short_name(name)
     return name
@@ -136,7 +137,7 @@ def keyboard_new(
     force: Annotated[
         bool, typer.Option("--force", "-f", help="Overwrite existing files.")
     ] = False,
-):
+) -> None:
     """Create a new keyboard from a template."""
     cfg = get_config(ctx)
     repo = cfg.get_repo()
@@ -200,7 +201,7 @@ def keyboard_new(
     rich.print("See https://zmk.dev/docs/development/new-shield for help.")
 
 
-def _prompt_keyboard_type():
+def _prompt_keyboard_type() -> KeyboardType:
     items = detail_list(
         [
             (KeyboardType.SHIELD, "A PCB which uses a separate controller board"),
@@ -212,7 +213,7 @@ def _prompt_keyboard_type():
     return result.data
 
 
-def _prompt_keyboard_platform():
+def _prompt_keyboard_platform() -> KeyboardPlatform:
     items = detail_list(
         [
             (KeyboardPlatform.NRF52840, "Nordic nRF52840 SoC"),
@@ -224,7 +225,7 @@ def _prompt_keyboard_platform():
     return result.data
 
 
-def _prompt_keyboard_layout():
+def _prompt_keyboard_layout() -> KeyboardLayout:
     items = detail_list(
         [
             (KeyboardLayout.UNIBODY, "A keyboard with a single controller"),
@@ -257,11 +258,11 @@ class NamePrompt(NamePromptBase):
     """Prompt for a keyboard name."""
 
     @classmethod
-    def validate(cls, value: str):
+    def validate(cls, value: str) -> None:
         _validate_name(value)
 
     @classmethod
-    def ask(cls):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def ask(cls) -> str:  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().ask("Enter the name of the keyboard")
 
 
@@ -269,11 +270,11 @@ class ShortNamePrompt(NamePromptBase):
     """Prompt for an abbreviated keyboard name."""
 
     @classmethod
-    def validate(cls, value: str):
+    def validate(cls, value: str) -> None:
         _validate_short_name(value)
 
     @classmethod
-    def ask(cls):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def ask(cls) -> str:  # pyright: ignore[reportIncompatibleMethodOverride]
         return super().ask(
             f"Enter an abbreviated name [dim](<= {MAX_NAME_LENGTH} chars)"
         )
@@ -283,18 +284,20 @@ class IdPrompt(NamePromptBase):
     """Prompt for a keyboard identifier."""
 
     @classmethod
-    def validate(cls, value: str):
+    def validate(cls, value: str) -> None:
         _validate_id(value)
 
     @classmethod
-    def ask(cls, prompt: str):  # pyright: ignore[reportIncompatibleMethodOverride]
+    def ask(
+        cls, prompt: str
+    ) -> str:  # pyright: ignore[reportIncompatibleMethodOverride]
         result = super().ask(
             "Enter an ID for the keyboard", default=_get_default_id(prompt)
         )
 
         # rich uses ... to indicate no default, but passing ... to the "default"
         # parameter causes it to add EllipsisType to the possible return types.
-        if result == ...:
+        if result is ...:
             raise TypeError("ask() returned ...")
 
         return result
@@ -313,7 +316,7 @@ def _get_template(
     keyboard_name: str,
     short_name: str,
     keyboard_id: str,
-):
+) -> TemplateData:
     template = TemplateData()
     template.data["id"] = keyboard_id
     template.data["name"] = keyboard_name
@@ -346,7 +349,7 @@ def _get_template(
     return template
 
 
-def _get_default_id(name: str):
+def _get_default_id(name: str) -> str | EllipsisType:
     # ID must be lowercase
     result = name.strip().lower()
 

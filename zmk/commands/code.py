@@ -10,7 +10,7 @@ from collections.abc import Callable
 from configparser import NoOptionError
 from dataclasses import dataclass, field
 from enum import Flag, auto
-from typing import Annotated, Optional
+from typing import Annotated
 
 import rich
 import typer

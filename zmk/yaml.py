@@ -4,7 +4,7 @@ YAML parser/printer which preserves any comments before the document.
 
 from io import UnsupportedOperation
 from pathlib import Path
-from typing import IO, Optional
+from typing import IO
 
 import ruamel.yaml
 
@@ -18,7 +18,7 @@ class YAML(ruamel.yaml.YAML):
     readable or seekable, a leading comment will be overwritten.
     """
 
-    def dump(self, data, stream: Path | IO | None = None, *, transform=None):
+    def dump(self, data, stream: Path | IO | None = None, *, transform=None) -> None:
         if stream is None:
             raise TypeError("Dumping from a context manager is not supported.")
 
@@ -39,7 +39,7 @@ class YAML(ruamel.yaml.YAML):
         super().dump(data, stream=stream, transform=transform)
 
 
-def _seek_to_document_start(stream: IO):
+def _seek_to_document_start(stream: IO) -> None:
     while True:
         line = stream.readline()
         if not line:

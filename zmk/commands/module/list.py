@@ -13,7 +13,7 @@ from ...config import get_config
 
 def module_list(
     ctx: typer.Context,
-):
+) -> None:
     """Print a list of installed Zephyr modules."""
 
     console = rich.get_console()

@@ -5,7 +5,7 @@ Build matrix processing.
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, TypeVar, cast, overload
+from typing import Any, Self, TypeVar, cast, overload
 
 import dacite
 
@@ -25,7 +25,7 @@ class BuildItem:
     cmake_args: str | None = None
     artifact_name: str | None = None
 
-    def __rich__(self):
+    def __rich__(self) -> str:
         parts = []
         parts.append(self.board)
 
@@ -57,7 +57,7 @@ class BuildMatrix:
     _data: dict[str, Any] | None
 
     @classmethod
-    def from_repo(cls, repo: Repo):
+    def from_repo(cls, repo: Repo) -> Self:
         """Get the build matrix for a repo"""
         return cls(repo.build_matrix_path)
 
@@ -70,12 +70,12 @@ class BuildMatrix:
         except FileNotFoundError:
             self._data = None
 
-    def write(self):
+    def write(self) -> None:
         """Updated the YAML file, creating it if necessary"""
         self._yaml.dump(self._data, self._path)
 
     @property
-    def path(self):
+    def path(self) -> Path:
         """Path to the matrix's YAML file"""
         return self._path
 
@@ -89,7 +89,7 @@ class BuildMatrix:
         wrapper = dacite.from_dict(_BuildMatrixWrapper, normalized)
         return wrapper.include
 
-    def has_item(self, item: BuildItem):
+    def has_item(self, item: BuildItem) -> bool:
         """Get whether the matrix has a build item"""
         return item in self.include
 
@@ -164,7 +164,7 @@ def _keys_to_python(data: Any) -> Any:
     work correctly.
     """
 
-    def fix_key(key: str):
+    def fix_key(key: str) -> str:
         return key.replace("-", "_")
 
     match data:
@@ -181,12 +181,13 @@ def _keys_to_python(data: Any) -> Any:
             return data
 
 
-def _to_yaml(item: BuildItem):
+# NOTE(elpekenin): cant hint return rtpe as BuildItem :(
+def _to_yaml(item: BuildItem) -> dict[str, Any]:
     """
     Convert a BuildItem to a dict with keys changed back from underscores to hyphens.
     """
 
-    def fix_key(key: str):
+    def fix_key(key: str) -> str:
         return key.replace("_", "-")
 
     data = asdict(item)

@@ -5,7 +5,7 @@
 import itertools
 import shutil
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import rich
 import typer
@@ -40,7 +40,7 @@ def keyboard_add(
             help="ID of the keyboard board/shield to add.",
         ),
     ] = None,
-):
+) -> None:
     """Add configuration for a keyboard and add it to the build."""
 
     console = rich.get_console()
@@ -116,7 +116,7 @@ def keyboard_add(
     console.print(f'Run "zmk code {keyboard.id}" to edit the keymap.')
 
 
-def _filter(item: Keyboard, text: str):
+def _filter(item: Keyboard, text: str) -> bool:
     text = text.casefold().strip()
     return text in item.id.casefold() or text in item.name.casefold()
 
@@ -135,13 +135,13 @@ class ControllerNotFound(FatalError):
         super().__init__(f'Could not find a controller board with ID "{controller_id}"')
 
 
-def _copy_keyboard_file(repo: Repo, path: Path):
+def _copy_keyboard_file(repo: Repo, path: Path) -> None:
     dest_path = repo.config_path / path.name
     if path.exists() and not dest_path.exists():
         shutil.copy2(path, dest_path)
 
 
-def _get_build_items(keyboard: Keyboard, controller: Board | None):
+def _get_build_items(keyboard: Keyboard, controller: Board | None) -> list[BuildItem]:
     boards = []
     shields = []
 
@@ -162,7 +162,9 @@ def _get_build_items(keyboard: Keyboard, controller: Board | None):
     return [BuildItem(board=b, shield=s) for b, s in itertools.product(boards, shields)]
 
 
-def _add_keyboard(repo: Repo, keyboard: Keyboard, controller: Board | None):
+def _add_keyboard(
+    repo: Repo, keyboard: Keyboard, controller: Board | None
+) -> list[BuildItem]:
     _copy_keyboard_file(repo, keyboard.keymap_path)
     _copy_keyboard_file(repo, keyboard.config_path)
 

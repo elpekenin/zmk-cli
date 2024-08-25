@@ -4,7 +4,7 @@ CLI tool to setup up ZMK Firmware.
 
 from importlib import metadata
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -15,7 +15,7 @@ app = typer.Typer(rich_markup_mode="rich")
 commands.register(app)
 
 
-def _version_callback(version: bool):
+def _version_callback(version: bool) -> None:
     if version:
         print(metadata.version("zmk"))
         raise typer.Exit()
@@ -46,7 +46,7 @@ def main(
             is_eager=True,
         ),
     ] = False,
-):
+) -> None:
     """
     ZMK Firmware command line tool
 

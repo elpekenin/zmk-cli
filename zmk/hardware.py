@@ -6,9 +6,10 @@ from collections.abc import Generator, Iterable
 from dataclasses import dataclass, field
 from functools import reduce
 from pathlib import Path
-from typing import Any, Literal, TypeAlias, TypeGuard
+from typing import Literal, Self, TypeAlias, TypeGuard
 
 import dacite
+import dacite.data
 
 from .repo import Repo
 from .util import flatten
@@ -43,11 +44,11 @@ class Hardware:
     def __str__(self) -> str:
         return self.id
 
-    def __rich__(self) -> Any:
+    def __rich__(self) -> str:
         return f"{self.id}  [dim]{self.name}"
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dacite.data.Data) -> Self:
         """Read a hardware description from a dict"""
         return dacite.from_dict(cls, data)
 
@@ -72,19 +73,19 @@ class Keyboard(Hardware):
     """List of features this board/shield supports"""
     variants: list[Variant] | None = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.siblings = self.siblings or []
         self.exposes = self.exposes or []
         self.features = self.features or []
         self.variants = self.variants or []
 
     @property
-    def config_path(self):
+    def config_path(self) -> Path:
         """Path to the .conf file for this keyboard"""
         return self.directory / f"{self.id}.conf"
 
     @property
-    def keymap_path(self):
+    def keymap_path(self) -> Path:
         """Path to the .keymap file for this keyboard"""
         return self.directory / f"{self.id}.keymap"
 
@@ -97,7 +98,7 @@ class Board(Keyboard):
     outputs: list[Output] = field(default_factory=list)
     """List of methods by which this board supports sending HID data"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         super().__post_init__()
         self.outputs = self.outputs or []
 
@@ -109,7 +110,7 @@ class Shield(Keyboard):
     requires: list[str] | None = field(default_factory=list)
     """List of interconnects to which this shield attaches"""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         super().__post_init__()
         self.requires = self.requires or []
 
@@ -127,17 +128,17 @@ class GroupedHardware:
 
     # TODO: add displays and other peripherals?
 
-    def find_keyboard(self, item_id: str):
+    def find_keyboard(self, item_id: str) -> Keyboard | None:
         """Find a keyboard by ID"""
         item_id = item_id.casefold()
         return next((i for i in self.keyboards if i.id.casefold() == item_id), None)
 
-    def find_controller(self, item_id: str):
+    def find_controller(self, item_id: str) -> Board | None:
         """Find a controller by ID"""
         item_id = item_id.casefold()
         return next((i for i in self.controllers if i.id.casefold() == item_id), None)
 
-    def find_interconnect(self, item_id: str):
+    def find_interconnect(self, item_id: str) -> Interconnect | None:
         """Find an interconnect by ID"""
         item_id = item_id.casefold()
         return next(
@@ -166,7 +167,9 @@ def is_interconnect(hardware: Hardware) -> TypeGuard[Interconnect]:
     return isinstance(hardware, Interconnect)
 
 
-def is_compatible(base: Board | Shield | Iterable[Board | Shield], shield: Shield):
+def is_compatible(
+    base: Board | Shield | Iterable[Board | Shield], shield: Shield
+) -> bool:
     """
     Get whether a shield can be attached to the given hardware.
 
@@ -203,7 +206,7 @@ def get_hardware(repo: Repo) -> GroupedHardware:
     """Get lists of hardware descriptions, grouped by type, for a repo"""
     hardware = flatten(_find_hardware(root) for root in get_board_roots(repo))
 
-    def func(groups: GroupedHardware, item: Hardware):
+    def func(groups: GroupedHardware, item: Hardware) -> GroupedHardware:
         if is_keyboard(item):
             groups.keyboards.append(item)
         elif is_controller(item):

@@ -13,13 +13,13 @@ import sys
 from contextlib import contextmanager
 
 
-def hide_cursor():
+def hide_cursor() -> None:
     """Hides the terminal cursor."""
     sys.stdout.write("\x1b[?25l")
     sys.stdout.flush()
 
 
-def show_cursor():
+def show_cursor() -> None:
     """Unhides the terminal cursor."""
     sys.stdout.write("\x1b[?25h")
     sys.stdout.flush()
@@ -68,7 +68,7 @@ try:
         83: DELETE,
     }
 
-    def read_key():
+    def read_key() -> bytes:
         """
         Waits for a key to be pressed and returns it.
 
@@ -150,7 +150,7 @@ except ImportError:
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSAFLUSH, oldattr)
 
-    def read_key():
+    def read_key() -> bytes:
         """
         Waits for a key to be pressed and returns it.
 
@@ -176,7 +176,7 @@ def get_cursor_pos() -> tuple[int, int]:
         return (int(row) - 1, int(col) - 1)
 
 
-def set_cursor_pos(row=0, col=0):
+def set_cursor_pos(row: int = 0, col: int = 0) -> None:
     """
     Sets the cursor to the given row and column. Positions are 0-based.
     """

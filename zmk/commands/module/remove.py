@@ -7,7 +7,7 @@ import shutil
 import stat
 import subprocess
 from dataclasses import dataclass
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 import rich
 import typer
@@ -104,10 +104,10 @@ class ProjectWrapper:
 
     project: Project
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.project.name
 
 
-def _filter(item: Detail[ProjectWrapper], text: str):
+def _filter(item: Detail[ProjectWrapper], text: str) -> bool:
     text = text.casefold()
     return text in item.data.project.name.casefold() or text in item.detail

@@ -35,7 +35,7 @@ class FatalHomeNotSet(FatalError):
     "user.home" setting is not set.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             'Home directory not set. Run "zmk init" to create a new config repo.'
         )

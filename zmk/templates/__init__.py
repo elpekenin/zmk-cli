@@ -63,7 +63,7 @@ def _remove_tag_newlines(text: str) -> str:
     blank line in the rendered output.
     """
 
-    def escape(line: str):
+    def escape(line: str) -> str:
         if m := _MAKO_TAG_RE.fullmatch(line):
             if m.group(1) not in _IGNORE_TAGS:
                 return line + "\\"

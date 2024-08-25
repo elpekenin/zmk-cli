@@ -2,7 +2,7 @@
 "zmk west" command.
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
